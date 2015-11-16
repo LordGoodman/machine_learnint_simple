@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from numpy import *
+from os import listdir
 import operator
 
 
@@ -66,3 +67,47 @@ def classifyPerson(path):
     classifierResult = classify0((inArr-minVal)/ranges,normMat,datingLabels,3) #此处返回1 or 2 or 3
     print "you will probably like this person:",resultList[classifierResult - 1]
 
+def image2vector(filename):
+        returnVector = zeros((1,1024))
+        fr = open(filename)
+        for i in range(32):
+            line = fr.readline()
+            for j in range(32):
+                returnVector[0,i*32+j] = line[j]
+        return returnVector
+
+def handwritingClassText(dirPath):
+    hwLabels = []
+    trainingFileList = listdir(dirPath+"/"+"trainingDigits")
+    m = len(trainingFileList)
+    trainingMat = zeros((m,1024))
+    for i in range(m):
+        fileNameStr = trainingFileList[i]
+        fileStr = fileNameStr.split(".")[0]
+        classNumStr = int(fileStr.split("_")[0])
+        hwLabels.append(classNumStr)
+        trainingMat[i,:] = image2vector(dirPath+"/"+"trainingDigits"+"/"+fileNameStr)
+    testFileList = listdir(dirPath + "/"+"testDigits")
+    errorCount = 0.0
+    mTest = len(testFileList)
+    
+    
+    for j in range(mTest):
+        testFileNameStr = testFileList[j]
+        testFileStr = testFileNameStr.split(".")[0]
+        classTestNumstr = int(testFileStr.split("_")[0])
+        testMat = image2vector(dirPath+"/"+"testDigits"+"/"+testFileNameStr)
+        classifierResult = classify0(testMat,trainingMat,hwLabels,5)
+       # print("the classifier came back with:%d ,the real answer is:%d"%(classifierResult,classTestNumstr))
+        if(classifierResult != classTestNumstr):errorCount += 1
+    print("the total number of errors is:%d"%errorCount)
+    print("the total error rate is:%f"%(errorCount/mTest))
+        
+        
+        
+        
+        
+        
+         
+        
+        
