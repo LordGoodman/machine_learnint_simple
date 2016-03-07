@@ -32,10 +32,10 @@ def trainNB0(trainMartix,trainCategory):
     numTrainDocs = len(trainMartix)
     numwords = len(trainMartix[0])
     pAbusive = sum(trainCategory)/float(numTrainDocs)
-    c0Num = np.zeros(numwords)
-    c1Num = np.zeros(numwords)
-    c0Denom = 0.0
-    c1Denom = 0.0
+    c0Num = np.ones(numwords)
+    c1Num = np.ones(numwords)
+    c0Denom = 2.0
+    c1Denom = 2.0
     
     for i in range(numTrainDocs):
         if trainCategory[i] == 0:
@@ -45,15 +45,36 @@ def trainNB0(trainMartix,trainCategory):
             c1Num += trainMartix[i]
             c1Denom += sum(trainMartix[i])
             
-    c0Vect = c0Num/c0Denom
-    c1Vect = c1Num/c1Denom
+    c0Vect = np.log(c0Num/c0Denom)
+    c1Vect = np.log(c1Num/c1Denom)
     
     return c0Vect,c1Vect,pAbusive    
                 
+def classifyNB(vec2Classify,p0Vec,p1Vec,pClass1):
+     p0 = sum(vec2Classify*p0Vec) + np.log(1.0-pClass1)
+     p1 = sum(vec2Classify*p1Vec) + np.log(pClass1)
+     if p1>p0:
+         return 'abusive'
+     else:
+         return 'cute'
+         
+def testNB():
+    listOfPosts,classVec = loadDataSet()
+    vocabList = creatVocabList(listOfPosts)
+    trainMat = []
+    for postInDoc in listOfPosts:
+        trainMat.append(setOfWords2Vec(vocabList,postInDoc))
+    p0vec,p1vec,pAbusive =  trainNB0(trainMat,classVec)
     
-    
-    
-    
-    
+    testEntry = ['love','my','dalmation']
+    thisDoc = np.array(setOfWords2Vec(vocabList,testEntry)) #统一classify参数格式
+   # print thisDoc
+    print testEntry,'classify as :',classifyNB(thisDoc,p0vec,p1vec,pAbusive)
+    print '---------------------------------------'
+    testEntry = ['stupid','garbage','dalmation','cute','love','my']
+    thisDoc = np.array(setOfWords2Vec(vocabList,testEntry)) #统一classify参数格式
+    #print thisDoc
+    print testEntry,'classify as :',classifyNB(thisDoc,p0vec,p1vec,pAbusive)
+
     
         
